@@ -1,1 +1,4 @@
+cd frontend
+type NUL > .nojekyll   # Windows (PowerShell: ni .nojekyll -ItemType File)
+# or: touch .nojekyll  # macOS/Linux
 
