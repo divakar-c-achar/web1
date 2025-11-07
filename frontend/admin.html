@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - ArtView Museum</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Include QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <style>
+      /* Additional styles for admin panel */
+      .file-upload-area {
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #fafafa;
+      }
+
+      .file-upload-area:hover {
+        border-color: #2c5aa0;
+        background: #f0f4f8;
+      }
+
+      .file-upload-area.dragover {
+        border-color: #2c5aa0;
+        background: #e8f0fe;
+      }
+
+      .file-upload-area i {
+        font-size: 2.5rem;
+        color: #2c5aa0;
+        margin-bottom: 1rem;
+      }
+
+      .file-preview {
+        margin-top: 1rem;
+        display: none;
+      }
+
+      .file-preview img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      .success-panel {
+        background: #f0f9f0;
+        border: 1px solid #4caf50;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .success-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .success-header i {
+        color: #4caf50;
+        font-size: 2rem;
+      }
+
+      .qr-display {
+        text-align: center;
+        margin: 2rem 0;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      .qr-code-container {
+        display: inline-block;
+        padding: 1rem;
+        background: white;
+        border-radius: 4px;
+      }
+
+      .success-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .artwork-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        background: white;
+        transition: transform 0.2s ease;
+      }
+
+      .artwork-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .artwork-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+
+      .artwork-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        border-color: #dc3545;
+      }
+
+      .btn-danger:hover {
+        background: #c82333;
+        border-color: #bd2130;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .error-message {
+        color: #d32f2f;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      /* Modal styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .success-actions {
+          flex-direction: column;
+        }
+        .artwork-actions {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <nav class="navbar">
+          <div class="logo">
+            <i class="fas fa-museum logo-icon"></i>
+            <span>ArtView Admin</span>
+          </div>
+          <div class="nav-links">
+            <a href="index.html" class="nav-link">Public Site</a>
+            <a href="scanner.html" class="nav-link">Scanner</a>
+            <a href="admin.html" class="nav-link active">Admin Panel</a>
+            <a href="analytics.html" class="nav-link">Analytics</a>
+            <a href="#" class="nav-link" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <section class="admin-hero">
+      <div class="container">
+        <div class="admin-welcome">
+          <h1>Artwork Management</h1>
+          <p>Welcome, <span id="userWelcome">Staff Member</span></p>
+        </div>
+      </div>
+    </section>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="admin-panel">
+          <div class="card">
+            <div class="panel-header">
+              <i class="fas fa-plus-circle"></i>
+              <h2>Add New Artwork</h2>
+            </div>
+
+            <form
+              id="uploadForm"
+              class="upload-form"
+              enctype="multipart/form-data"
+            >
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="title">Artwork Title *</label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    required
+                    placeholder="Enter artwork title"
+                  />
+                  <div class="error-message" id="titleError"></div>
+                </div>
+                <div class="form-group">
+                  <label for="artist">Artist *</label>
+                  <input
+                    type="text"
+                    id="artist"
+                    name="artist"
+                    required
+                    placeholder="Artist's full name"
+                  />
+                  <div class="error-message" id="artistError"></div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="year">Year Created *</label>
+                  <input
+                    type="text"
+                    id="year"
+                    name="year"
+                    required
+                    placeholder="e.g., 1889"
+                  />
+                  <div class="error-message" id="yearError"></div>
+                </div>
+                <div class="form-group">
+                  <label for="medium">Medium *</label>
+                  <input
+                    type="text"
+                    id="medium"
+                    name="medium"
+                    required
+                    placeholder="e.g., Oil on canvas"
+                  />
+                  <div class="error-message" id="mediumError"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="dimensions">Dimensions *</label>
+                <input
+                  type="text"
+                  id="dimensions"
+                  name="dimensions"
+                  required
+                  placeholder="e.g., 24 × 36 inches"
+                />
+                <div class="error-message" id="dimensionsError"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="description">Description *</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="5"
+                  required
+                  placeholder="Provide detailed description including historical context, techniques, and significance..."
+                ></textarea>
+                <div class="error-message" id="descriptionError"></div>
+              </div>
+
+              <div class="form-group file-upload-group">
+                <label for="image">Artwork Image *</label>
+                <div class="file-upload-area" id="fileUploadArea">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <p>Click to upload or drag and drop</p>
+                  <span>JPG, PNG, GIF (Max 10MB)</span>
+                  <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    required
+                    style="display: none"
+                  />
+                </div>
+                <div id="filePreview" class="file-preview">
+                  <img id="previewImage" src="" alt="Preview" />
+                  <p id="fileName"></p>
+                </div>
+                <div class="error-message" id="imageError"></div>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary btn-full"
+                id="submitBtn"
+              >
+                <i class="fas fa-upload"></i>
+                Upload Artwork & Generate QR Code
+              </button>
+            </form>
+          </div>
+
+          <div id="uploadResult" class="success-panel" style="display: none">
+            <div class="success-header">
+              <i class="fas fa-check-circle"></i>
+              <h3>Artwork Successfully Added!</h3>
+            </div>
+            <div class="success-content">
+              <div id="qrCodeContainer" class="qr-display">
+                <h4>QR Code for Artwork</h4>
+                <div id="qrCode" class="qr-code-container"></div>
+                <p>Scan this QR code to view artwork details</p>
+              </div>
+              <div class="success-actions">
+                <button id="downloadQR" class="btn btn-primary">
+                  <i class="fas fa-download"></i>
+                  Download QR Code
+                </button>
+                <button id="printQR" class="btn btn-secondary">
+                  <i class="fas fa-print"></i>
+                  Print QR Code
+                </button>
+                <button id="addAnother" class="btn btn-secondary">
+                  <i class="fas fa-plus"></i>
+                  Add Another Artwork
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <i class="fas fa-images"></i>
+              <h2>Manage Artworks</h2>
+              <span class="artwork-count" id="artworkCount">0 artworks</span>
+            </div>
+
+            <div id="adminArtworksGrid" class="artworks-grid admin-grid">
+              <div class="loading">Loading artworks...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Edit Artwork Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Artwork</h3>
+          <button class="modal-close" onclick="closeEditModal()">
+            &times;
+          </button>
+        </div>
+        <form id="editForm">
+          <input type="hidden" id="editId" />
+          <div class="form-group">
+            <label for="editTitle">Artwork Title</label>
+            <input type="text" id="editTitle" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="editArtist">Artist</label>
+            <input type="text" id="editArtist" name="artist" required />
+          </div>
+          <div class="form-group">
+            <label for="editYear">Year</label>
+            <input type="text" id="editYear" name="year" required />
+          </div>
+          <div class="form-group">
+            <label for="editMedium">Medium</label>
+            <input type="text" id="editMedium" name="medium" required />
+          </div>
+          <div class="form-group">
+            <label for="editDimensions">Dimensions</label>
+            <input type="text" id="editDimensions" name="dimensions" required />
+          </div>
+          <div class="form-group">
+            <label for="editDescription">Description</label>
+            <textarea
+              id="editDescription"
+              name="description"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeEditModal()"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>ArtView Museum</h3>
+            <p>Artwork management system for museum staff.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Authentication check - MUST BE AT THE TOP
+      document.addEventListener("DOMContentLoaded", function () {
+        // Check if user is logged in
+        const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+        if (isLoggedIn !== "true") {
+          // Redirect to login page if not authenticated
+          window.location.href = "login.html";
+          return;
+        }
+
+        // Update welcome message with username
+        const userWelcome = document.getElementById("userWelcome");
+        if (userWelcome) {
+          const userName = localStorage.getItem("username") || "Staff Member";
+          userWelcome.textContent = userName;
+        }
+
+        // Setup logout functionality
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            logout();
+          });
+        }
+
+        // Initialize the admin panel functionality
+        initializeAdminPanel();
+      });
+
+      // Logout function
+      function logout() {
+        // Clear all login-related data
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("username");
+        localStorage.removeItem("loginTime");
+        localStorage.removeItem("userWelcome");
+        localStorage.removeItem("userRole");
+
+        // Redirect to login page with logout message
+        window.location.href = "login.html?logout=true";
+      }
+
+      // Artworks data storage (in a real app, this would be from a backend)
+      let artworks = JSON.parse(localStorage.getItem("artworks")) || [];
+      let currentQRCodeData = null;
+
+      function initializeAdminPanel() {
+        // File upload functionality
+        const fileUploadArea = document.getElementById("fileUploadArea");
+        const fileInput = document.getElementById("image");
+        const filePreview = document.getElementById("filePreview");
+        const previewImage = document.getElementById("previewImage");
+        const fileName = document.getElementById("fileName");
+        const uploadForm = document.getElementById("uploadForm");
+        const submitBtn = document.getElementById("submitBtn");
+
+        // Click on upload area triggers file input
+        fileUploadArea.addEventListener("click", function () {
+          fileInput.click();
+        });
+
+        // Drag and drop functionality
+        fileUploadArea.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          fileUploadArea.classList.add("dragover");
+        });
+
+        fileUploadArea.addEventListener("dragleave", function () {
+          fileUploadArea.classList.remove("dragover");
+        });
+
+        fileUploadArea.addEventListener("drop", function (e) {
+          e.preventDefault();
+          fileUploadArea.classList.remove("dragover");
+
+          if (e.dataTransfer.files.length) {
+            handleFileSelection(e.dataTransfer.files[0]);
+          }
+        });
+
+        // File input change handler
+        fileInput.addEventListener("change", function (e) {
+          if (e.target.files.length) {
+            handleFileSelection(e.target.files[0]);
+          }
+        });
+
+        function handleFileSelection(file) {
+          // Validate file type
+          const validTypes = [
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/gif",
+          ];
+          if (!validTypes.includes(file.type)) {
+            showError(
+              "imageError",
+              "Please select a valid image file (JPG, PNG, or GIF)"
+            );
+            return;
+          }
+
+          // Validate file size (10MB max)
+          if (file.size > 10 * 1024 * 1024) {
+            showError("imageError", "File size must be less than 10MB");
+            return;
+          }
+
+          // Clear any previous errors
+          hideError("imageError");
+
+          // Create preview
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            fileName.textContent = file.name;
+            filePreview.style.display = "block";
+          };
+          reader.readAsDataURL(file);
+        }
+
+        // Form submission
+        uploadForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          handleFormSubmission();
+        });
+
+        // Success panel buttons
+        document
+          .getElementById("addAnother")
+          .addEventListener("click", function () {
+            resetForm();
+          });
+
+        document
+          .getElementById("downloadQR")
+          .addEventListener("click", function () {
+            downloadQRCode();
+          });
+
+        document
+          .getElementById("printQR")
+          .addEventListener("click", function () {
+            printQRCode();
+          });
+
+        // Edit form submission
+        document
+          .getElementById("editForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            saveArtworkEdit();
+          });
+
+        // Load existing artworks
+        loadArtworks();
+      }
+
+      function handleFormSubmission() {
+        const submitBtn = document.getElementById("submitBtn");
+        const formData = new FormData(document.getElementById("uploadForm"));
+
+        // Basic validation
+        if (!validateForm()) {
+          return;
+        }
+
+        // Show loading state
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        submitBtn.disabled = true;
+
+        // Simulate API call (replace with actual backend integration)
+        setTimeout(() => {
+          // Create new artwork object
+          const newArtwork = {
+            id: Date.now(), // Generate unique ID
+            title: document.getElementById("title").value,
+            artist: document.getElementById("artist").value,
+            year: document.getElementById("year").value,
+            medium: document.getElementById("medium").value,
+            dimensions: document.getElementById("dimensions").value,
+            description: document.getElementById("description").value,
+            image: document.getElementById("previewImage").src, // Base64 image
+            createdAt: new Date().toISOString(),
+          };
+
+          // Add to artworks array
+          artworks.push(newArtwork);
+
+          // Save to localStorage (in real app, this would be API call)
+          localStorage.setItem("artworks", JSON.stringify(artworks));
+
+          // Generate QR code
+          generateQRCode(newArtwork.id, newArtwork.title);
+
+          // Show success panel
+          showSuccessPanel();
+          submitBtn.innerHTML =
+            '<i class="fas fa-upload"></i> Upload Artwork & Generate QR Code';
+          submitBtn.disabled = false;
+
+          // Reload artworks grid
+          loadArtworks();
+        }, 1500);
+      }
+
+      function generateQRCode(artworkId, artworkTitle) {
+        // Create URL that would be used by the scanner
+        const qrData = JSON.stringify({
+          id: artworkId,
+          title: artworkTitle,
+          type: "artwork",
+        });
+
+        currentQRCodeData = qrData;
+
+        // Generate QR code
+        const typeNumber = 0;
+        const errorCorrectionLevel = "L";
+        const qr = qrcode(typeNumber, errorCorrectionLevel);
+        qr.addData(qrData);
+        qr.make();
+
+        // Create QR code image
+        const qrCodeElement = document.getElementById("qrCode");
+        qrCodeElement.innerHTML = qr.createImgTag(4); // 4 is the cell size
+      }
+
+      function downloadQRCode() {
+        if (!currentQRCodeData) return;
+
+        const qrCodeImg = document.querySelector("#qrCode img");
+        if (qrCodeImg) {
+          const link = document.createElement("a");
+          link.download = `qr-code-${Date.now()}.png`;
+          link.href = qrCodeImg.src;
+          link.click();
+        }
+      }
+
+      function printQRCode() {
+        const qrCodeContainer = document.getElementById("qrCodeContainer");
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Print QR Code</title>
+                        <style>
+                            body { 
+                                font-family: Arial, sans-serif; 
+                                text-align: center; 
+                                padding: 2rem;
+                            }
+                            .qr-code { 
+                                margin: 2rem auto; 
+                            }
+                            .artwork-info {
+                                margin-bottom: 2rem;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="artwork-info">
+                            <h2>Artwork QR Code</h2>
+                            <p>Scan to view artwork details</p>
+                        </div>
+                        <div class="qr-code">${qrCodeContainer.innerHTML}</div>
+                    </body>
+                </html>
+            `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+
+      function validateForm() {
+        let isValid = true;
+        const fields = [
+          "title",
+          "artist",
+          "year",
+          "medium",
+          "dimensions",
+          "description",
+          "image",
+        ];
+
+        // Clear all errors first
+        fields.forEach((field) => hideError(field + "Error"));
+
+        // Check each required field
+        fields.forEach((field) => {
+          const element = document.getElementById(field);
+          if (!element.value.trim()) {
+            showError(field + "Error", `This field is required`);
+            isValid = false;
+          }
+        });
+
+        // Additional validation for year
+        const year = document.getElementById("year").value;
+        if (year && !/^\d{4}$/.test(year)) {
+          showError("yearError", "Please enter a valid year (e.g., 1889)");
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      function showError(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = "block";
+      }
+
+      function hideError(elementId) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.style.display = "none";
+      }
+
+      function showSuccessPanel() {
+        document.getElementById("uploadResult").style.display = "block";
+        document.getElementById("uploadForm").reset();
+        document.getElementById("filePreview").style.display = "none";
+
+        // Scroll to success panel
+        document.getElementById("uploadResult").scrollIntoView({
+          behavior: "smooth",
+        });
+      }
+
+      function resetForm() {
+        document.getElementById("uploadForm").reset();
+        document.getElementById("filePreview").style.display = "none";
+        document.getElementById("uploadResult").style.display = "none";
+        currentQRCodeData = null;
+
+        // Clear all errors
+        const errorElements = document.querySelectorAll(".error-message");
+        errorElements.forEach((element) => {
+          element.style.display = "none";
+        });
+      }
+
+      function loadArtworks() {
+        const artworksGrid = document.getElementById("adminArtworksGrid");
+        const artworkCount = document.getElementById("artworkCount");
+
+        if (artworks.length === 0) {
+          artworksGrid.innerHTML =
+            '<div class="loading">No artworks found. Add your first artwork above.</div>';
+        } else {
+          artworksGrid.innerHTML = artworks
+            .map(
+              (artwork) => `
+                    <div class="artwork-card">
+                        <img src="${artwork.image}" alt="${artwork.title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y0ZjRmNCIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIwLjM1ZW0iPkFydHdvcmsgSW1hZ2U8L3RleHQ+PC9zdmc+'">
+                        <h3>${artwork.title}</h3>
+                        <p><strong>Artist:</strong> ${artwork.artist}</p>
+                        <p><strong>Year:</strong> ${artwork.year}</p>
+                        <div class="artwork-actions">
+                            <button class="btn btn-small" onclick="editArtwork(${artwork.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="deleteArtwork(${artwork.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        }
+
+        artworkCount.textContent = `${artworks.length} artwork${
+          artworks.length !== 1 ? "s" : ""
+        }`;
+      }
+
+      function editArtwork(id) {
+        const artwork = artworks.find((a) => a.id === id);
+        if (artwork) {
+          // Populate edit form
+          document.getElementById("editId").value = artwork.id;
+          document.getElementById("editTitle").value = artwork.title;
+          document.getElementById("editArtist").value = artwork.artist;
+          document.getElementById("editYear").value = artwork.year;
+          document.getElementById("editMedium").value = artwork.medium;
+          document.getElementById("editDimensions").value = artwork.dimensions;
+          document.getElementById("editDescription").value =
+            artwork.description;
+
+          // Show modal
+          document.getElementById("editModal").style.display = "block";
+        }
+      }
+
+      function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+      }
+
+      function saveArtworkEdit() {
+        const id = parseInt(document.getElementById("editId").value);
+        const artworkIndex = artworks.findIndex((a) => a.id === id);
+
+        if (artworkIndex !== -1) {
+          // Update artwork
+          artworks[artworkIndex] = {
+            ...artworks[artworkIndex],
+            title: document.getElementById("editTitle").value,
+            artist: document.getElementById("editArtist").value,
+            year: document.getElementById("editYear").value,
+            medium: document.getElementById("editMedium").value,
+            dimensions: document.getElementById("editDimensions").value,
+            description: document.getElementById("editDescription").value,
+          };
+
+          // Save to localStorage
+          localStorage.setItem("artworks", JSON.stringify(artworks));
+
+          // Reload grid and close modal
+          loadArtworks();
+          closeEditModal();
+
+          alert("Artwork updated successfully!");
+        }
+      }
+
+      function deleteArtwork(id) {
+        if (
+          confirm(
+            "Are you sure you want to delete this artwork? This action cannot be undone."
+          )
+        ) {
+          // Remove artwork from array
+          artworks = artworks.filter((a) => a.id !== id);
+
+          // Save to localStorage
+          localStorage.setItem("artworks", JSON.stringify(artworks));
+
+          // Reload grid
+          loadArtworks();
+
+          alert("Artwork deleted successfully!");
+        }
+      }
+
+      // Close modal when clicking outside
+      window.addEventListener("click", function (event) {
+        const modal = document.getElementById("editModal");
+        if (event.target === modal) {
+          closeEditModal();
+        }
+      });
+    </script>
+  </body>
+</html>

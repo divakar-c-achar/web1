@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtView Museum - Digital Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-museum logo-icon"></i>
+                    <span>ArtView Museum</span>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link active">Home</a>
+                    <a href="scanner.html" class="nav-link">Scan Art</a>
+                    <a href="login.html" class="nav-link">Staff Login</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Discover Art Stories Instantly</h1>
+            <p>Scan QR codes next to artworks to unlock detailed information, historical context, and fascinating insights about each masterpiece.</p>
+            <div class="hero-buttons">
+                <a href="scanner.html" class="btn btn-primary">
+                    <i class="fas fa-camera"></i>
+                    Start Scanning
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <i class="fas fa-info-circle"></i>
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Enhance Your Museum Experience</h2>
+                <p>No apps to download, no registration required</p>
+            </div>
+            <div class="features-grid">
+                <div class="card feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3>Quick Scanning</h3>
+                    <p>Simply point your camera at QR codes displayed next to artworks for instant access to rich information.</p>
+                </div>
+                <div class="card feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3>Rich Content</h3>
+                    <p>Discover artist backgrounds, historical context, techniques, and fascinating stories behind each piece.</p>
+                </div>
+                <div class="card feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>Privacy First</h3>
+                    <p>No personal data collected. Enjoy the art without any registration or tracking concerns.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="gallery-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Artworks</h2>
+                <p>Explore some of the masterpieces in our collection</p>
+            </div>
+            <div id="featuredArtworks" class="artworks-grid">
+                <div class="loading">Loading artworks...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Explore?</h2>
+                <p>Visit us today and experience art like never before with our digital guide system.</p>
+                <a href="scanner.html" class="btn btn-primary btn-large">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Start Your Art Journey
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>ArtView Museum</h3>
+                    <p>Bringing art and technology together for an enhanced museum experience.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="scanner.html">Scan Artwork</a></li>
+                        <li><a href="login.html">Staff Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Visit Us</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Art District</li>
+                        <li><i class="fas fa-clock"></i> 10AM - 6PM Daily</li>
+                        <li><i class="fas fa-phone"></i> (555) 123-ART</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ArtView Museum. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
