@@ -1,16 +1,15 @@
-title: Your Site
-markdown: kramdown
+title: web1
 theme: jekyll-theme-primer
+markdown: kramdown
 
-# Keep Jekyll away from build artifacts and package folders
+# Keep Jekyll away from build artifacts
 exclude:
-  - node_modules
-  - backend/node_modules
-  - vendor
+  - node_modules/
+  - backend/node_modules/
+  - backend/**/node_modules/
+  - backend/**/README.md
+  - vendor/
   - package.json
   - package-lock.json
   - yarn.lock
   - pnpm-lock.yaml
-  - webpack.config.js
-  - vite.config.*
-  - README.md  # if your repo README shouldn’t become a page
